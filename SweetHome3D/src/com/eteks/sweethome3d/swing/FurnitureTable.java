@@ -118,6 +118,8 @@ import com.eteks.sweethome3d.tools.ResourceURLContent;
 import com.eteks.sweethome3d.viewcontroller.FurnitureController;
 import com.eteks.sweethome3d.viewcontroller.View;
 
+import static javax.sound.sampled.FloatControl.Type.VOLUME;
+
 /**
  * A table displaying home furniture.
  * @author Emmanuel Puybaret
@@ -930,6 +932,9 @@ public class FurnitureTable extends JTable implements View, Printable {
           case ELEVATION : 
             writer.write(sizeFormat.format(copiedPiece.getElevation()));
             break;
+          case VOLUME :
+            writer.write(sizeFormat.format(copiedPiece.getVolume()));
+            break;
           case ANGLE :
           case PRICE : 
           case VALUE_ADDED_TAX_PERCENTAGE : 
@@ -1157,7 +1162,9 @@ public class FurnitureTable extends JTable implements View, Printable {
         case VALUE_ADDED_TAX :
           return preferences.getLocalizedString(FurnitureTable.class, "valueAddedTaxColumn");          
         case PRICE_VALUE_ADDED_TAX_INCLUDED :
-          return preferences.getLocalizedString(FurnitureTable.class, "priceValueAddedTaxIncludedColumn");          
+          return preferences.getLocalizedString(FurnitureTable.class, "priceValueAddedTaxIncludedColumn");
+        case VOLUME :
+          return preferences.getLocalizedString(FurnitureTable.class, "volumeColumn");
         default :
           throw new IllegalArgumentException("Unknown column name " + property);
       }
@@ -1193,7 +1200,9 @@ public class FurnitureTable extends JTable implements View, Printable {
         case VALUE_ADDED_TAX_PERCENTAGE :
         case VALUE_ADDED_TAX :
         case PRICE_VALUE_ADDED_TAX_INCLUDED :
-          return 70;          
+          return 70;
+        case VOLUME :
+          return 50;
         default :
           throw new IllegalArgumentException("Unknown column name " + property);
       }
@@ -1242,7 +1251,9 @@ public class FurnitureTable extends JTable implements View, Printable {
         case VALUE_ADDED_TAX :
           return getPriceRenderer(HomePieceOfFurniture.SortableProperty.VALUE_ADDED_TAX, preferences);          
         case PRICE_VALUE_ADDED_TAX_INCLUDED :
-          return getPriceRenderer(HomePieceOfFurniture.SortableProperty.PRICE_VALUE_ADDED_TAX_INCLUDED, preferences);          
+          return getPriceRenderer(HomePieceOfFurniture.SortableProperty.PRICE_VALUE_ADDED_TAX_INCLUDED, preferences);
+        case VOLUME :
+          return getVolumeRenderer(preferences);
         default :
           throw new IllegalArgumentException("Unknown column name " + property);
       }
@@ -1374,6 +1385,28 @@ public class FurnitureTable extends JTable implements View, Printable {
         default :
           throw new IllegalArgumentException(property + " column not a size column");
       }
+    }
+
+    /**
+     * Returns a renderer that displays volume.
+     */
+    private TableCellRenderer getVolumeRenderer(
+            final UserPreferences preferences) {
+      return new DefaultTableCellRenderer() {
+        @Override
+        public Component getTableCellRendererComponent(
+                JTable table, Object value, boolean isSelected,
+                boolean hasFocus, int row, int column) {
+          String text = null;
+          if (value != null) {
+            text = preferences.getLengthUnit().getFormat().format(
+                    ((HomePieceOfFurniture)value).getVolume());
+          }
+          setHorizontalAlignment(JLabel.RIGHT);
+          return super.getTableCellRendererComponent(
+                  table, text, isSelected, hasFocus, row, column);
+        }
+      };
     }
 
     /**
